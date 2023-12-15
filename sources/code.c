@@ -41,6 +41,8 @@ int main()
         // 두께를 숫자로 입력받기
         printf("두께( 1(매우두꺼움), 2(두꺼움), 3(중간), 4(얇음) 1~4 중 입력): ");
         scanf("%d", &clothes[i].thickness);
+
+        getchar();
     }
 
     // 옷을 분류하고 랜덤으로 타입을 선택하여 추천하는 함수 호출
@@ -51,20 +53,38 @@ int main()
     return 0;
 }
 
-// 옷을 분류하고 랜덤으로 타입을 선택하여 추천하기 위해 만든 함수
-// 이 함수가 수행하는 것은 1.배열에서 랜덤하게 옷 하나를 선택하고 ,
-// 2. 선택된 옷의 타입을 출력한 후 recommendOutfit 함수에 해당 정보(두께 및 타입)를 전달하는 것
 void classifyAndRecommend(Clothing *clothes, int inputClothes, int temperature)
 {
     srand(time(NULL)); // 난수생성을 매번 다르게 하게끔 초기화 시켜줌
 
-    int randomType = rand() % inputClothes;
+    // 동적으로 후보 옷을 저장할 배열을 선언
+    Clothing **considerThickness = (Clothing **)malloc(inputClothes * sizeof(Clothing *));
 
-    // 선택된 옷을 출력하는 문구
-    printf("추천된 옷: %s\n", clothes[randomType].type);
+    int count = 0; // 후보 옷의 개수 초기회
 
-    // recommendOutfit 함수를 호출해서 옷의 두께 및 종류를 인수로 전달한다.
-    recommendOutfit(temperature, clothes[randomType].thickness, clothes[randomType].type);
+    // and 연산자 및 or 연산자 이용해서 온도와 두께 모두 고려하고 고려된 옷 개수 늘리기
+    for (int i = 0; i < inputClothes; ++i)
+    {
+        if ((temperature < 0 && clothes[i].thickness == 1) ||
+            (temperature < 10 && clothes[i].thickness == 2) ||
+            (temperature < 20 && clothes[i].thickness == 3) ||
+            (temperature >= 20 && clothes[i].thickness == 4))
+        {
+            considerThickness[count] = &clothes[i];
+            count++;
+        }
+    }
+
+    free(considerThickness); // 메모리해제
+
+    // 랜덤하게 선택된 후보 중 하나를 출력
+    int randomIndex = rand() % count;
+    printf("추천된 옷: %s\n", considerThickness[randomIndex]->type);
+
+    // recommendOutfit 함수를 호출해서 옷의 두께 및 종류를 인수로 전달
+    recommendOutfit(temperature, considerThickness[randomIndex]->thickness, considerThickness[randomIndex]->type);
+
+    free(considerThickness); // 동적으로 할당한 메모리 해제
 }
 
 // 온도에 따라 의상을 추천하는 함수
@@ -104,7 +124,7 @@ void recommendOutfit(int temperature, int thickness, char *type)
     }
     else if (thickness == 3)
     {
-        printf("가벼운 %s를 추천합니다.\n", type);
+        printf("가볍게 %s를 추천합니다.\n", type);
     }
     else if (thickness == 4)
     {
