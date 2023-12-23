@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-// #include "recommendation.h"
-
+// 옷의 종류와 두께를 멤버로 갖는 구조체 정의
 typedef struct
 {
     char type[50];
@@ -29,8 +28,8 @@ int main()
     printf("가지고 있는 옷의 수를 입력하세요: ");
     scanf("%d", &inputClothes);
 
-    // 구조체 배열 동적 할당
-    Clothing *clothes = (Clothing *)malloc(inputClothes * sizeof(Clothing));
+    // 구조체 포인터 배열 동적 할당
+    Clothing **candidateClothes = (Clothing **)malloc(inputClothes * sizeof(Clothing *));
 
     // 각각의 옷 정보를 입력 받음.
     for (int i = 0; i < inputClothes; ++i)
@@ -42,8 +41,6 @@ int main()
         // 두께를 숫자로 입력받기
         printf("두께( 1(매우두꺼움), 2(두꺼움), 3(중간), 4(얇음) 1~4 중 입력): ");
         scanf("%d", &clothes[i].thickness);
-
-        getchar();
     }
 
     // 옷을 분류하고 랜덤으로 타입을 선택하여 추천하는 함수 호출
@@ -54,43 +51,41 @@ int main()
     return 0;
 }
 
+// 옷을 분류하고 랜덤으로 타입을 선택하여 추천하기 위해 만든 함수
+// 이 함수가 수행하는 것은 1.배열에서 랜덤하게 옷 하나를 선택하고 ,
+// 2. 선택된 옷의 타입을 출력한 후 recommendOutfit 함수에 해당 정보(두께 및 타입)를 전달하는 것
 void classifyAndRecommend(Clothing *clothes, int inputClothes, int temperature)
 {
     srand(time(NULL)); // 난수생성을 매번 다르게 하게끔 초기화 시켜줌
 
-    // 동적으로 후보 옷을 저장할 새로운 배열을 선언, 온도도 고려함
-    Clothing **considerThickness = (Clothing **)malloc(inputClothes * sizeof(Clothing *));
+    // "두께"에 맞는 후보 옷을 저장할 새로운 배열 생성하기
+    Clothing **candidateClothes = (Clothing **)malloc(inputClothes * sizeof(Clothing *));
+    int candidateCount = 0; // 후보 옷의 개수
 
-    int count = 0; // 후보 옷의 개수 초기회
-
-    // and 연산자 및 or 연산자 이용해서 온도와 두께 모두 고려하고 고려된 옷 개수 늘리기
+    // 후보 옷을 찾아서 배열에 저장
     for (int i = 0; i < inputClothes; ++i)
     {
+        // 현재 온도와 "두께"에 맞는 옷을 후보로 선택
         if ((temperature < 0 && clothes[i].thickness == 1) ||
             (temperature < 10 && clothes[i].thickness == 2) ||
             (temperature < 20 && clothes[i].thickness == 3) ||
             (temperature >= 20 && clothes[i].thickness == 4))
         {
-            considerThickness[count] = &clothes[i];
-            count++;
+            candidateClothes[candidateCount] = &clothes[i];
+            candidateCount++;
         }
     }
 
-    if (count == 0)
+    if (candidateCount == 0)
     {
         printf("해당 조건에 맞는 옷이 없습니다.\n");
-        free(considerThickness); // 동적으로 할당한 메모리 해제
         return;
     }
 
-    // 랜덤하게 선택된 후보 중 하나를 출력
-    int randomIndex = rand() % count;
-    printf("추천된 옷: %s\n", considerThickness[randomIndex]->type);
-
-    // recommendOutfit 함수를 호출해서 옷의 두께 및 종류를 인수로 전달
-    recommendOutfit(temperature, considerThickness[randomIndex]->thickness, considerThickness[randomIndex]->type);
-
-    free(considerThickness); // 동적으로 할당한 메모리 해제
+    int randomIndex = rand() % candidateCount;
+    printf("추천된 옷: %s\n", candidateClothes[randomIndex]->type);
+    recommendOutfit(temperature, candidateClothes[randomIndex]->thickness, candidateClothes[randomIndex]->type);
+    free(candidateClothes); // 동적으로 할당한 메모리 해제
 }
 
 // 온도에 따라 의상을 추천하는 함수
@@ -130,7 +125,7 @@ void recommendOutfit(int temperature, int thickness, char *type)
     }
     else if (thickness == 3)
     {
-        printf("가볍게 %s를 추천합니다.\n", type);
+        printf("가벼운 %s를 추천합니다.\n", type);
     }
     else if (thickness == 4)
     {
