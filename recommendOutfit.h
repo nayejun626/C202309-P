@@ -1,0 +1,1 @@
+void recommendOutfit(int temperature, int thickness, char *type);
