@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 // 온도에 따라 의상을 추천하는 함수
 void recommendOutfit(int temperature, int thickness, char *type)
 {

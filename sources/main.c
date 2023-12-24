@@ -2,16 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include "recommendOutfit.h"
 
-typedef struct
+typedef struct // 의류의 종류와 두께를 멤버로 가지는 구조체 정의
 {
     char type[50];
     int thickness;
 } Clothing;
 
 // 온도에 따라 적절한 의상을 추천하는 함수 선언하기
-// void recommendOutfit(int temperature, int thickness, char *type);
+void recommendOutfit(int temperature, int thickness, char *type);
 
 // 옷을 분류하고 랜덤으로 타입을 선택하여 추천하는 함수
 void classifyAndRecommend(Clothing *clothes, int inputClothes, int temperature);
@@ -93,7 +92,7 @@ void classifyAndRecommend(Clothing *clothes, int inputClothes, int temperature)
 }
 
 // 온도에 따라 의상을 추천하는 함수
-/* void recommendOutfit(int temperature, int thickness, char *type)
+void recommendOutfit(int temperature, int thickness, char *type)
 {
     // 온도 범위에 따른 의상 추천
     if (temperature < 0)
@@ -139,4 +138,4 @@ void classifyAndRecommend(Clothing *clothes, int inputClothes, int temperature)
     {
         printf("잘못된 두께 입력값입니다.\n");
     }
-} */
+}
